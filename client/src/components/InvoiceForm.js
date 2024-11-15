@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
 const InvoiceForm = () => {
     const [formData, setFormData] = useState({
@@ -8,18 +10,38 @@ const InvoiceForm = () => {
         contact: '',
         description: '',
         amount: '',
+        dateOfBooking: new Date(), // Defaults to the current date
+        eventDate: null,
     });
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    const handleDateChange = (field, date) => {
+        setFormData({ ...formData, [field]: date });
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.post('http://localhost:5000/invoices', formData);
+            // Format dates to ISO strings for backend compatibility
+            const payload = {
+                ...formData,
+                dateOfBooking: formData.dateOfBooking.toISOString(),
+                eventDate: formData.eventDate ? formData.eventDate.toISOString() : null,
+            };
+            await axios.post('http://localhost:5000/invoices', payload);
             alert('Invoice created successfully!');
-            setFormData({ id: '', name: '', contact: '', description: '', amount: '' });
+            setFormData({
+                id: '',
+                name: '',
+                contact: '',
+                description: '',
+                amount: '',
+                dateOfBooking: new Date(),
+                eventDate: null,
+            });
         } catch (error) {
             alert('Error creating invoice');
         }
@@ -86,6 +108,28 @@ const InvoiceForm = () => {
                         value={formData.amount}
                         onChange={handleChange}
                         placeholder="Enter amount"
+                        required
+                    />
+                </div>
+                <div className="mb-3">
+                    <label className="form-label">Date of Booking</label>
+                    <DatePicker
+                        selected={formData.dateOfBooking}
+                        onChange={(date) => handleDateChange('dateOfBooking', date)}
+                        className="form-control"
+                        dateFormat="yyyy-MM-dd"
+                        placeholderText="Select date of booking"
+                        required
+                    />
+                </div>
+                <div className="mb-3">
+                    <label className="form-label">Event Date</label>
+                    <DatePicker
+                        selected={formData.eventDate}
+                        onChange={(date) => handleDateChange('eventDate', date)}
+                        className="form-control"
+                        dateFormat="yyyy-MM-dd"
+                        placeholderText="Select event date"
                         required
                     />
                 </div>

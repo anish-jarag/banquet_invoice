@@ -5,14 +5,26 @@ import 'jspdf-autotable';
 
 const InvoiceList = () => {
     const [invoices, setInvoices] = useState([]);
+    const [year, setYear] = useState('');
+    const [month, setMonth] = useState('');
 
-    const fetchInvoices = async () => {
+    const fetchInvoices = async (filterYear, filterMonth) => {
         try {
-            const response = await axios.get('http://localhost:5000/invoices');
+            const response = await axios.get('http://localhost:5000/invoices/sort', {
+                params: { year: filterYear, month: filterMonth },
+            });
             setInvoices(response.data);
         } catch (error) {
             alert('Error fetching invoices');
         }
+    };
+
+    useEffect(() => {
+        fetchInvoices();
+    }, []);
+
+    const handleSort = () => {
+        fetchInvoices(year, month);
     };
 
     const handleDelete = async (id) => {
@@ -33,13 +45,15 @@ const InvoiceList = () => {
         doc.text('Invoice List', 14, 22);
 
         // Table Headers and Rows
-        const tableColumn = ['ID', 'Name', 'Contact', 'Description', 'Amount'];
+        const tableColumn = ['ID', 'Name', 'Contact', 'Description', 'Amount', 'Booking Date', 'Event Date'];
         const tableRows = invoices.map((invoice) => [
             invoice.id,
             invoice.name,
             invoice.contact,
             invoice.description,
             invoice.amount,
+            invoice.dateOfBooking ? new Date(invoice.dateOfBooking).toLocaleDateString() : 'N/A',
+            invoice.eventDate ? new Date(invoice.eventDate).toLocaleDateString() : 'N/A',
         ]);
 
         // Add table to the PDF
@@ -53,14 +67,46 @@ const InvoiceList = () => {
         doc.save('invoices.pdf');
     };
 
-    useEffect(() => {
-        fetchInvoices();
-    }, []);
-
     return (
         <div className="container mt-5">
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <h2 className="text-primary">Invoice List</h2>
+                <div className="d-flex gap-3">
+                    <select
+                        className="form-select"
+                        value={year}
+                        onChange={(e) => setYear(e.target.value)}
+                    >
+                        <option value="">Select Year</option>
+                        {Array.from({ length: 5 }, (_, i) => {
+                            const currentYear = new Date().getFullYear();
+                            return (
+                                <option key={i} value={currentYear - i}>
+                                    {currentYear - i}
+                                </option>
+                            );
+                        })}
+                    </select>
+
+                    <select
+                        className="form-select"
+                        value={month}
+                        onChange={(e) => setMonth(e.target.value)}
+                    >
+                        <option value="">Select Month</option>
+                        {['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'].map(
+                            (month, i) => (
+                                <option key={i} value={i + 1}>
+                                    {month}
+                                </option>
+                            )
+                        )}
+                    </select>
+
+                    <button className="btn btn-primary" onClick={handleSort}>
+                        Filter
+                    </button>
+                </div>
                 <button
                     onClick={exportPDF}
                     className="btn btn-success"
@@ -76,6 +122,8 @@ const InvoiceList = () => {
                         <th>Contact</th>
                         <th>Description</th>
                         <th>Amount</th>
+                        <th>Booking Date</th>
+                        <th>Event Date</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -87,6 +135,8 @@ const InvoiceList = () => {
                             <td>{invoice.contact}</td>
                             <td>{invoice.description}</td>
                             <td>{invoice.amount}</td>
+                            <td>{invoice.dateOfBooking ? new Date(invoice.dateOfBooking).toLocaleDateString() : 'N/A'}</td>
+                            <td>{invoice.eventDate ? new Date(invoice.eventDate).toLocaleDateString() : 'N/A'}</td>
                             <td>
                                 <button
                                     onClick={() => handleDelete(invoice._id)}
