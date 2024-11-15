@@ -75,6 +75,18 @@
 //   }
 // });
 
+
+
+
+
+
+
+
+
+
+
+
+
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
@@ -112,7 +124,18 @@ connectDB();
 
 // Create Invoice
 app.post('/invoices', async (req, res) => {
-    const invoice = new Invoice(req.body);
+    const { id, name, contact, description, amount, dateOfBooking, eventDate } = req.body;
+
+    const invoice = new Invoice({
+        id,
+        name,
+        contact,
+        description,
+        amount,
+        dateOfBooking,
+        eventDate,
+    });
+
     try {
         await invoice.save();
         res.status(201).send(invoice);
@@ -125,6 +148,36 @@ app.post('/invoices', async (req, res) => {
 app.get('/invoices', async (req, res) => {
     try {
         const invoices = await Invoice.find();
+        res.status(200).send(invoices);
+    } catch (error) {
+        res.status(500).send({ message: error.message });
+    }
+});
+
+// Get Invoices Sorted by Year and Month
+app.get('/invoices/sort', async (req, res) => {
+    const { year, month } = req.query;
+
+    try {
+        // Build the filter dynamically
+        let filter = {};
+        if (year) {
+            const yearInt = parseInt(year, 10);
+            filter.dateOfBooking = {
+                $gte: new Date(yearInt, 0, 1),
+                $lte: new Date(yearInt, 11, 31),
+            };
+        }
+        if (month) {
+            const monthInt = parseInt(month, 10) - 1; // Month is zero-based in JavaScript
+            filter.dateOfBooking = {
+                ...filter.dateOfBooking,
+                $gte: new Date(year || 1970, monthInt, 1),
+                $lte: new Date(year || 1970, monthInt + 1, 0), // Last day of the month
+            };
+        }
+
+        const invoices = await Invoice.find(filter).sort({ dateOfBooking: 1 }); // Sort by date
         res.status(200).send(invoices);
     } catch (error) {
         res.status(500).send({ message: error.message });
