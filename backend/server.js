@@ -154,30 +154,36 @@ app.get('/invoices', async (req, res) => {
     }
 });
 
-// Get Invoices Sorted by Year and Month
+// Get Invoices by Year, Month, Name, and Event Date
 app.get('/invoices/sort', async (req, res) => {
-    const { year, month } = req.query;
+    const { year, month, name, eventDate } = req.query;
+    const filters = {};
+
+    // Filter by year
+    if (year) {
+        filters.dateOfBooking = { $gte: new Date(`${year}-01-01`), $lt: new Date(`${parseInt(year) + 1}-01-01`) };
+    }
+
+    // Filter by month (requires year to be provided)
+    if (month && year) {
+        const startDate = new Date(year, month - 1, 1);
+        const endDate = new Date(year, month, 0);
+        filters.dateOfBooking = { $gte: startDate, $lt: endDate };
+    }
+
+    // Filter by name (case-insensitive)
+    if (name) {
+        filters.name = { $regex: name, $options: 'i' }; // 'i' makes it case-insensitive
+    }
+
+    // Filter by eventDate
+    if (eventDate) {
+        const date = new Date(eventDate);
+        filters.eventDate = { $eq: date };
+    }
 
     try {
-        // Build the filter dynamically
-        let filter = {};
-        if (year) {
-            const yearInt = parseInt(year, 10);
-            filter.dateOfBooking = {
-                $gte: new Date(yearInt, 0, 1),
-                $lte: new Date(yearInt, 11, 31),
-            };
-        }
-        if (month) {
-            const monthInt = parseInt(month, 10) - 1; // Month is zero-based in JavaScript
-            filter.dateOfBooking = {
-                ...filter.dateOfBooking,
-                $gte: new Date(year || 1970, monthInt, 1),
-                $lte: new Date(year || 1970, monthInt + 1, 0), // Last day of the month
-            };
-        }
-
-        const invoices = await Invoice.find(filter).sort({ dateOfBooking: 1 }); // Sort by date
+        const invoices = await Invoice.find(filters);
         res.status(200).send(invoices);
     } catch (error) {
         res.status(500).send({ message: error.message });
