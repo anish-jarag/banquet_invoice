@@ -1,0 +1,16 @@
+.card {
+    border-radius: 10px;
+}
+
+.table {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.table thead {
+    text-transform: uppercase;
+}
+
+.table tbody tr:hover {
+    background-color: #f9f9f9;
+}

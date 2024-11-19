@@ -1,52 +1,53 @@
-.App {
+/* App.css */
+
+/* Background Styling */
+body {
+  background: url('https://lh3.googleusercontent.com/p/AF1QipMLN6T34tOa02wGoDidB0t2SqGV1BjF4S8LVZ-v=s1360-w1360-h1020') no-repeat center center fixed;
+  background-size: cover;
+  margin: 0;
+  padding: 0;
+  font-family: 'Arial', sans-serif;
+}
+
+/* Overlay for Better Visibility */
+.container {
+  background-color: rgba(255, 255, 255, 0.752); /* Transparent white overlay */
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.464);
+  padding: 20px;
+  margin: 20px auto;
+  max-width: 900px;
+}
+
+/* Header Styling */
+.app-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #007bff;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
   text-align: center;
+  margin-bottom: 10px;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+/* Button Group */
+.btn-tab {
+  border-radius: 30px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.btn-tab:hover {
+  box-shadow: 0 4px 6px rgba(0, 123, 255, 0.2);
 }
 
-button {
-  padding: 10px 15px;
-  background-color: #007bff;
-  color: white;
+/* Card Layout */
+.card {
+  border-radius: 12px;
   border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 14px;
 }
 
-button:hover {
-  background-color: #0056b3;
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.card-shadow {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
